@@ -1,15 +1,24 @@
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asyncHandler";
-
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Entry } from "../models/entry.models.js";
 
 const createEntry = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { date, mood, journalText, activities, sleepHours, waterIntake } = req.body;
 
-  if([date, mood, journalText, activities, sleepHours, waterIntake].some((field) => field?.trim() === "")){
-        throw new ApiError(400, "All fields are required !")
-    }
+  // if([date, mood, journalText, activities, sleepHours, waterIntake].some((field) => field?.trim() === "")){
+  //       throw new ApiError(400, "All fields are required !")
+  //   }
 
+    // console.log({
+    //   date,
+    //   mood,
+    //   userId,
+    //   journalText,
+    //   activities,
+    //   sleepHours,
+    //   waterIntake
+    // })
   const existing = await Entry.findOne({ userId, date });
   if (existing) {
     return res.status(400).json({ message: "Entry already exists for this date." });
