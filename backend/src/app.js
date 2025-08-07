@@ -22,7 +22,11 @@ app.use(cookieParser())
 
 import userRouter from './routes/user.routes.js';
 import entriesRouter from './routes/entry.routes.js';
+import aiRouter from './routes/ai.routes.js'
+
 app.use("/api/v1/users", userRouter) 
 app.use('/api/v1/entries', entriesRouter)
+app.use('/api/v1/ai', aiRouter)
+
 
 export { app }

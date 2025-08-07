@@ -17,8 +17,9 @@ export const getModel = async(prompt) => {
     const result = await model.generateContent(prompt);
     const response = result.response;
 
-const text = await response.text(); // 👈 call the function
+const text = await response.text();
 console.log(text);
+return text // 👈 call the function
   } catch (error) {
     console.log(error)
   }
