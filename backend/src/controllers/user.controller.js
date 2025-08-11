@@ -36,9 +36,22 @@ const registerUser = asyncHandler( async (req, res) => {
     if(!createdUser){
         throw new ApiError(500, "Something went wrong while registering user")
     }
+    const token = jwt.sign({
+        userId: createdUser._id,
+    }, process.env.TOKEN_SECRET)
 
-    return res.status(201).json(
-       new ApiResponse(201, createdUser.schema, "User Created Successfully!!")
+    const options = {
+        httpOnly: true,
+        secure: false
+    }
+
+    return res.status(201)
+    .cookie("token", token, options)
+    .json(
+       new ApiResponse(201, {
+        user: user,
+        token: token
+       }, "User Created Successfully!!")
     )
 })
 
@@ -76,7 +89,8 @@ const loginUser = asyncHandler( async (req, res) => {
     .cookie("token", token, options)
     .json(
         new ApiResponse(200, {
-            user: loggedInUser
+            user: loggedInUser,
+            token: token
         }, "User logged in successfully")
     )
 })

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from 'axios'
+import { loginUserRoute } from "../../utils/apiRoutes.js";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,10 +12,23 @@ export default function Login() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    // TODO: connect to backend API
-    console.log(formData);
+    try {
+      const res = await axios.post(
+        loginUserRoute, formData,
+        {withCredentials: true}
+      )
+      
+      localStorage.setItem("token", res.data.data.token)
+      
+      // toastify message
+      // console.log(res.data.data.token)
+      // navigate to dashboard
+      
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   return (
