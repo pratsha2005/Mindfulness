@@ -1,8 +1,12 @@
 import { useState } from "react";
 import axios from 'axios'
 import { loginUserRoute } from "../../utils/apiRoutes.js";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { Link } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -15,18 +19,22 @@ export default function Login() {
   const handleSubmit = async(e) => {
     e.preventDefault();
     try {
+     
       const res = await axios.post(
         loginUserRoute, formData,
         {withCredentials: true}
       )
       
       localStorage.setItem("token", res.data.data.token)
-      
-      // toastify message
-      // console.log(res.data.data.token)
-      // navigate to dashboard
+
+      toast.success("Logged in successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/dashboard");
       
     } catch (error) {
+      toast("Login failed! Please check your credentials.");
       console.log(error)
     }
   };
@@ -85,12 +93,12 @@ export default function Login() {
 
           <p className="text-center text-sm text-gray-600">
             Don't have an account?{" "}
-            <a
-              href="/signup"
+            <Link
+              to="/signup"
               className="font-semibold text-purple-500 hover:underline"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </form>
       </div>
