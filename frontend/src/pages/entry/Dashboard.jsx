@@ -1,29 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { positiveRoute } from "../../utils/apiRoutes";
+import { getAllEntriesRoute, positiveRoute } from "../../utils/apiRoutes";
 import axios from "axios";
 import { ReactTyped } from "react-typed";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [positive, setPositive] = useState("");
-  const [loading, setLoading] = useState(true); // ✅ Loading state
-  
-  // Fetch positive prompt
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+
   useEffect(() => {
     const positivePrompt = async () => {
       try {
         const res = await axios.get(positiveRoute, { withCredentials: true });
         setPositive(res.data.message);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching positive prompt:", error);
       } finally {
-        setLoading(false); // ✅ Stop loading when done
+        setLoading(false);
       }
     };
+
+    const getEntries = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(getAllEntriesRoute, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        console.log(res.data.data)
+        setEntries(res.data.data);
+        console.log(entries)
+        
+      } catch (error) {
+        console.error("Error fetching entries:", error);
+      }
+    };
+
+    getEntries();
     positivePrompt();
   }, []);
 
-  // ✅ Loading screen
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-purple-100">
@@ -40,15 +59,17 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <div className="bg-white shadow-lg w-64">
+      <div className="bg-white shadow-lg w-64 border-r border-black">
         <div className="h-full flex flex-col">
           <div className="p-4 border-b flex justify-between items-center">
-            <h2 className="text-xl font-bold text-purple-700">MindTrack</h2>
+            <Link to="/dashboard" className="text-xl font-bold text-purple-700">
+              MindTrack
+            </Link>
           </div>
           <nav className="p-4 space-y-4 flex-1">
             <Link
               to="/add-entry"
-              className="block p-2 rounded-lg hover:bg-purple-100 text-purple-700 font-medium"
+              className="block p-2 rounded-lg bg-purple-100 text-purple-700 font-medium"
             >
               ➕ Add Entry
             </Link>
@@ -65,23 +86,18 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-indigo-600">Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <button className="bg-indigo-500 text-white px-3 py-1 rounded-lg hover:bg-indigo-600">
-              Add Today's Entry
-            </button>
-            <img
-              src="https://via.placeholder.com/40"
-              alt="User Profile"
-              className="w-10 h-10 rounded-full border"
-            />
-          </div>
+        <header className="bg-white shadow-sm p-4 flex justify-center items-center relative">
+          <h1 className="text-6xl font-bold text-indigo-600">Dashboard</h1>
+          <img
+            src="https://via.placeholder.com/40"
+            alt="User Profile"
+            className="w-10 h-10 rounded-full border absolute right-4"
+          />
         </header>
 
         {/* Positive Prompt */}
-        <main className="p-6 flex-1">
-          <h1 className="text-4xl font-bold mb-6 text-purple-600">
+        <main className="p-6 flex-1 flex flex-col items-center gap-6">
+          <h1 className="text-4xl font-bold text-purple-600 text-center">
             {positive && (
               <ReactTyped
                 strings={[positive]}
@@ -95,29 +111,49 @@ export default function Dashboard() {
           </h1>
 
           {/* Last 5 Entries */}
-          <section className="bg-white shadow rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4">Your Last 5 Entries</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(5)].map((_, idx) => (
-                <div
-                  key={idx}
-                  className="border rounded-xl p-4 shadow-md bg-purple-50 hover:shadow-lg hover:bg-purple-100 transition-all duration-200"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-purple-700">
-                      2025-08-0{idx + 1}
-                    </span>
-                    <span className="text-yellow-600 font-medium">
-                      Mood: {Math.floor(Math.random() * 5) + 1}
-                    </span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    This is a sample journal preview text for entry {idx + 1}...
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* Last 5 Entries */}
+<section className="bg-white shadow rounded-lg p-4 w-full max-w-5xl">
+  <h3 className="text-lg font-semibold mb-4">Your Last 5 Entries</h3>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {entries.length > 0 ? (
+  entries.slice(0, 5).map((entry, idx) => {
+    const formattedDate = entry.date
+      ? new Date(entry.date).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "Unknown Date";
+
+    return (
+      <div
+        key={idx}
+        className="border rounded-xl p-4 shadow-md bg-purple-50 hover:shadow-lg hover:bg-purple-100 transition-all duration-200 flex flex-col justify-between"
+        style={{ height: "200px" }}
+      >
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-purple-700">
+              {formattedDate}
+            </span>
+            <span className="text-yellow-600 font-medium">
+              Mood: {entry.mood || "N/A"}
+            </span>
+          </div>
+          <p className="text-gray-700 text-2xl font-bold">
+            {entry.journalText?.slice(0, 60) || "No preview available"}...
+          </p>
+        </div>
+      </div>
+    );
+  })
+) : (
+  <p className="text-gray-500">No entries found.</p>
+)}
+
+  </div>
+</section>
+
         </main>
       </div>
     </div>

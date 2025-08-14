@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { addEntryRoute } from "../../utils/apiRoutes";
+import axios from "axios";
 
 export default function AddEntry() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     mood: "",
     journalText: "",
@@ -37,47 +41,77 @@ export default function AddEntry() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form); // Replace with Axios POST request
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        addEntryRoute,
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50 overflow-hidden">
+    <div className="relative min-h-screen flex bg-gray-50 overflow-hidden">
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
+            <p className="mt-3 text-lg text-indigo-600 font-medium">Saving entry...</p>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
-        <div className="bg-white shadow-lg w-64 border-r border-black">
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center">
-        <Link to='/dashboard' className="text-xl font-bold text-purple-700">MindTrack</Link>
+      <div className="bg-white shadow-lg w-64 border-r border-black">
+        <div className="h-full flex flex-col">
+          <div className="p-4 border-b flex justify-between items-center">
+            <Link to="/dashboard" className="text-xl font-bold text-purple-700">
+              MindTrack
+            </Link>
+          </div>
+          <nav className="p-4 space-y-4 flex-1">
+            <Link
+              to="/add-entry"
+              className="block p-2 rounded-lg bg-purple-100 text-purple-700 font-medium"
+            >
+              ➕ Add Entry
+            </Link>
+            <Link
+              to="/analysis"
+              className="block p-2 rounded-lg hover:bg-purple-100 text-purple-700 font-medium"
+            >
+              📅 Weekly Analysis
+            </Link>
+          </nav>
+        </div>
       </div>
-      <nav className="p-4 space-y-4 flex-1">
-        <Link
-          to="/add-entry"
-          className="block p-2 rounded-lg bg-purple-100 text-purple-700 font-medium"
-        >
-          ➕ Add Entry
-        </Link>
-        <Link
-          to="/analysis"
-          className="block p-2 rounded-lg hover:bg-purple-100 text-purple-700 font-medium"
-        >
-          📅 Weekly Analysis
-        </Link>
-      </nav>
-    </div>
-  </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
         <header className="bg-white shadow-sm p-4 flex justify-center items-center relative">
-  <h1 className="text-6xl font-bold text-indigo-600">Add Entry</h1>
-  <img
-    src="https://via.placeholder.com/40"
-    alt="User Profile"
-    className="w-10 h-10 rounded-full border absolute right-4"
-  />
-</header>
+          <h1 className="text-6xl font-bold text-indigo-600">Add Entry</h1>
+          <img
+            src="https://via.placeholder.com/40"
+            alt="User Profile"
+            className="w-10 h-10 rounded-full border absolute right-4"
+          />
+        </header>
 
         {/* Form */}
         <main className="p-6 flex-1 flex justify-center">
@@ -163,7 +197,8 @@ export default function AddEntry() {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
+                  disabled={loading}
+                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:opacity-50"
                 >
                   Save Entry
                 </button>

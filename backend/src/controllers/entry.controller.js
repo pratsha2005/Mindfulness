@@ -4,21 +4,9 @@ import { Entry } from "../models/entry.models.js";
 
 const createEntry = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const { date, mood, journalText, activities, sleepHours, waterIntake } = req.body;
-
-  // if([date, mood, journalText, activities, sleepHours, waterIntake].some((field) => field?.trim() === "")){
-  //       throw new ApiError(400, "All fields are required !")
-  //   }
-
-    // console.log({
-    //   date,
-    //   mood,
-    //   userId,
-    //   journalText,
-    //   activities,
-    //   sleepHours,
-    //   waterIntake
-    // })
+  const { mood, journalText, activities, sleepHours, waterIntake } = req.body;
+  let date = new Date()
+  date = date.setHours(0,0,0,0)
   const existing = await Entry.findOne({ userId, date });
   if (existing) {
     return res.status(400).json({ message: "Entry already exists for this date." });
