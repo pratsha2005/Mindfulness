@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { registerUserRoute } from "../../utils/apiRoutes";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Signup() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -24,15 +26,13 @@ export default function Signup() {
         }
       )
       localStorage.setItem('token', res.data.data.token)
-      // navigate to dashboard
-
-
-      console.log(res)
+      toast.success("User registered successfully")
+      navigate('/login')
     } catch (error) {
       console.log(error)
+      toast.error("Something went wrong !!")
     }
 
-    // TODO: connect to backend API
     console.log(formData);
   };
 
