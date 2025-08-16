@@ -1,6 +1,8 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Entry } from "../models/entry.models.js";
+import { getModel } from "../utils/AI.js";
+
 
 const createEntry = asyncHandler(async (req, res) => {
   const userId = req.user._id;
@@ -8,6 +10,11 @@ const createEntry = asyncHandler(async (req, res) => {
   let date = new Date()
   date = date.setHours(0,0,0,0)
   const existing = await Entry.findOne({ userId, date });
+  const moodClassification = await getModel(`
+    Classify on the basis of the following journal text: ${journalText},
+    the mood of the user among the following: ["Happy", "Sad", "Angry", "Neutral"]
+    `)
+  
   if (existing) {
     return res.status(400).json({ message: "Entry already exists for this date." });
   }
@@ -19,7 +26,8 @@ const createEntry = asyncHandler(async (req, res) => {
     journalText,
     activities,
     sleepHours,
-    waterIntake
+    waterIntake,
+    moodClassification
   });
 
   res.status(201).json(
@@ -64,10 +72,30 @@ const getWeeklyAnalytics = asyncHandler(async (req, res) => {
 
   const entries = await Entry.find({
     userId,
-    date: { $gte: weekAgo, $lte: today }
+    date: { $gte: weekAgo, $lte: today },
+  })
+    .select("date moodClassification mood -_id") // only required fields
+    .sort({ date: 1 }); // ascending order by date
+
+
+  if (!entries || entries.length === 0) {
+    return res.status(200).json({
+      success: true,
+      data: [],
+      averageMoodScore: null,
+      message: "No entries found for this week",
+    });
+  }
+
+   const avgMood =
+    entries.reduce((sum, entry) => sum + entry.mood, 0) / entries.length;
+
+  res.status(200).json({
+    success: true,
+    data: entries,
+    averageMoodScore: avgMood.toFixed(2),
   });
 
-  res.status(200).json({ entries });
 });
 
 // GET /api/analytics/monthly

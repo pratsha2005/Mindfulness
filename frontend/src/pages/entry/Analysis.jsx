@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
+import { getWeeklyAnalyticsRoute } from "../../utils/apiRoutes";
+
 
 export default function AnalysisPage() {
   const [timeframe, setTimeframe] = useState("weekly");
@@ -22,45 +24,67 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(false);
 
   // Fetch data when timeframe changes
-  useEffect(() => {
-    fetchAnalysis();
-  }, [timeframe]);
+  
 
   const fetchAnalysis = async () => {
     setLoading(true);
     try {
-      // ✅ Replace with your backend API endpoint
       const res = await axios.get(
-        `http://localhost:8000/api/v1/analysis?timeframe=${timeframe}`,
-        { withCredentials: true }
+        getWeeklyAnalyticsRoute, 
+        {withCredentials: true},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
 
-      // Example response format
-      // res.data = {
-      //   labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      //   moodScores: [3, 4, 2, 5, 3, 4, 3],
-      //   aiSummary: "Your week showed improvement in mood..."
-      // };
+      // console.log(res.data)
 
+      const data = res.data.data.map(e => {
+        const day = new Date(e.date).toLocaleDateString("en-US", { weekday: "short" });
+        return { day, mood: e.mood };
+      });
+
+      console.log(data)
       setChartData({
-        labels: res.data.labels,
+        labels: data.map((e) => e.day),
         datasets: [
           {
             label: "Mood Score",
-            data: res.data.moodScores,
+            data: data.map((e) => e.mood),
             fill: false,
             borderColor: "#4F46E5",
+            backgroundColor: "rgba(79, 70, 229, 0.5)",
             tension: 0.3,
           },
         ],
       });
 
-      setAnalysis(res.data.aiSummary);
+
+      // setChartData({
+      //   labels: res.data.labels,
+      //   datasets: [
+      //     {
+      //       label: "Mood Score",
+      //       data: res.data.moodScores,
+      //       fill: false,
+      //       borderColor: "#4F46E5",
+      //       tension: 0.3,
+      //     },
+      //   ],
+      // });
+
+      // setAnalysis(res.data.aiSummary);
     } catch (err) {
       console.error(err);
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, []);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

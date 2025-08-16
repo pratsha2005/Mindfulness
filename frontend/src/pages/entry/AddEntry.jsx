@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { addEntryRoute } from "../../utils/apiRoutes";
+import { addEntryRoute, getAllEntriesRoute } from "../../utils/apiRoutes";
 import axios from "axios";
+
+
 
 export default function AddEntry() {
   const navigate = useNavigate();
@@ -26,6 +28,32 @@ export default function AddEntry() {
     "screenTime",
     "rest",
   ];
+
+  // const getEntries = async () => {
+  //   try {
+  //     // ✅ Check cache first
+  //     const cachedEntries = localStorage.getItem("entries");
+  //     if (cachedEntries) {
+  //       setEntries(JSON.parse(cachedEntries));
+  //       return;
+  //     }
+
+  //     const token = localStorage.getItem("token");
+  //     const res = await axios.get(getAllEntriesRoute, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     setEntries(res.data.data);
+
+  //     // ✅ Save to cache
+  //     localStorage.setItem("entries", JSON.stringify(res.data.data));
+  //   } catch (error) {
+  //     console.error("Error fetching entries:", error);
+  //   }
+  // };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +84,7 @@ export default function AddEntry() {
           },
         }
       );
+      // getEntries()
       navigate("/dashboard");
     } catch (err) {
       console.error(err.response?.data || err.message);

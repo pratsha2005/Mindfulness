@@ -8,40 +8,65 @@ export default function Dashboard() {
   const [positive, setPositive] = useState("");
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+  const getEntries = async () => {
+    try {
+      // ✅ Check cache first
+      const cachedEntries = localStorage.getItem("entries");
+      if (cachedEntries) {
+        setEntries(JSON.parse(cachedEntries));
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const res = await axios.get(getAllEntriesRoute, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setEntries(res.data.data);
+
+      // ✅ Save to cache
+      localStorage.setItem("entries", JSON.stringify(res.data.data));
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
+
 
   useEffect(() => {
-    const positivePrompt = async () => {
-      try {
-        const res = await axios.get(positiveRoute, { withCredentials: true });
-        setPositive(res.data.message);
-      } catch (error) {
-        console.error("Error fetching positive prompt:", error);
-      } finally {
+  const positivePrompt = async () => {
+    try {
+      // ✅ Check cache first
+      const cachedPositive = localStorage.getItem("positivePrompt");
+      if (cachedPositive) {
+        setPositive(cachedPositive);
         setLoading(false);
+        return; // stop API call if cached
       }
-    };
 
-    const getEntries = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(getAllEntriesRoute, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        console.log(res.data.data)
-        setEntries(res.data.data);
-        console.log(entries)
-        
-      } catch (error) {
-        console.error("Error fetching entries:", error);
-      }
-    };
+      const res = await axios.get(positiveRoute, { withCredentials: true });
+      setPositive(res.data.message);
 
+      // ✅ Save to cache
+      localStorage.setItem("positivePrompt", res.data.message);
+    } catch (error) {
+      console.error("Error fetching positive prompt:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cachedEntries = localStorage.getItem("entries");
+  if (cachedEntries) {
+    setEntries(JSON.parse(cachedEntries));
+  } else {
     getEntries();
-    positivePrompt();
-  }, []);
+  }
+  
+  positivePrompt();
+}, []);
+
 
   if (loading) {
     return (

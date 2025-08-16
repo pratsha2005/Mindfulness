@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const entrySchema = new mongoose.Schema(
   {
+    moodClassification: {
+      type: String,
+      enum: ["Happy", "Sad", "Angry", "Neutral"],
+      required: true
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
