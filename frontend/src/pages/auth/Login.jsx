@@ -32,7 +32,7 @@ export default function Login() {
         autoClose: 3000,
       });
       navigate("/dashboard");
-      
+      // added comment
     } catch (error) {
       toast("Login failed! Please check your credentials.");
       console.log(error)
