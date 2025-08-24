@@ -5,7 +5,7 @@ import cors from "cors";
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173", // explicitly your frontend URL
+  origin: "https://mindfulness-jnvf.onrender.com", // explicitly your frontend URL
   credentials: true,              // allow cookies/headers
 }));
 app.use(express.json({
