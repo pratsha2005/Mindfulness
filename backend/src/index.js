@@ -5,7 +5,7 @@ dotenv.config({
     path: './.env'
 })
 
-
+// backend wake 
 import { app } from "./app.js"
 connectDB()
 .then(() => {
