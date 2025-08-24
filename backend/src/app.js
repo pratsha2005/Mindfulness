@@ -5,9 +5,11 @@ import cors from "cors";
 const app = express();
 
 app.use(cors({
-  origin: "https://mindfulness-jnvf.onrender.com", // explicitly your frontend URL
-  credentials: true,              // allow cookies/headers
+  origin: ["http://localhost:5173", "https://mindfulness-jnvf.onrender.com"], 
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 app.use(express.json({
     limit: '16kb'
 }))
