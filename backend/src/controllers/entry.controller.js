@@ -13,6 +13,7 @@ const createEntry = asyncHandler(async (req, res) => {
   const moodClassification = await getModel(`
     Classify on the basis of the following journal text: ${journalText},
     the mood of the user among the following: ["Happy", "Sad", "Angry", "Neutral"]
+    remove any ** ** in answers and get only the words "Sad", "Happy", etc.
     `)
   
   if (existing) {

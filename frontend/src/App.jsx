@@ -7,6 +7,7 @@ import Login from './pages/auth/Login'
 import Dashboard from './pages/entry/Dashboard'
 import AddEntry from './pages/entry/AddEntry'
 import AnalysisPage from './pages/entry/Analysis'
+import LandingPage from './pages/Landing';
 
 function App() {
   
@@ -18,6 +19,7 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path='/' element={<LandingPage/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 

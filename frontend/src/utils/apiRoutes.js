@@ -8,7 +8,7 @@ const positiveRoute = `${port}/api/v1/ai/positive-prompt`
 const addEntryRoute = `${port}/api/v1/entries/create-entry`
 const getAllEntriesRoute = `${port}/api/v1/entries/get-all-entries`
 const getWeeklyAnalyticsRoute = `${port}/api/v1/entries/get-weekly-analytics`
-
+const analysisRoute = `${port}/api/v1/ai/ai-insights`
 
 export {
     loginUserRoute,
@@ -17,5 +17,6 @@ export {
     positiveRoute,
     addEntryRoute,
     getAllEntriesRoute,
-    getWeeklyAnalyticsRoute
+    getWeeklyAnalyticsRoute,
+    analysisRoute
 }

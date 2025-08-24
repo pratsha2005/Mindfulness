@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getAllEntriesRoute, positiveRoute } from "../../utils/apiRoutes";
+import { getAllEntriesRoute, positiveRoute, logoutRoute } from "../../utils/apiRoutes";
 import axios from "axios";
 import { ReactTyped } from "react-typed";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [positive, setPositive] = useState("");
@@ -11,11 +11,8 @@ export default function Dashboard() {
   const getEntries = async () => {
     try {
       // ✅ Check cache first
-      const cachedEntries = localStorage.getItem("entries");
-      if (cachedEntries) {
-        setEntries(JSON.parse(cachedEntries));
-        return;
-      }
+      // 
+      
 
       const token = localStorage.getItem("token");
       const res = await axios.get(getAllEntriesRoute, {
@@ -33,8 +30,30 @@ export default function Dashboard() {
     }
   };
 
+  const navigate = useNavigate()
 
-  useEffect(() => {
+  const handleLogout = async() => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await axios.post(logoutRoute, {}, {
+        withCredentials: true
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      localStorage.removeItem('token')
+      localStorage.removeItem('entries')
+      localStorage.removeItem('positivePrompt')
+
+      navigate('/')
+
+
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const positivePrompt = async () => {
     try {
       // ✅ Check cache first
@@ -57,12 +76,16 @@ export default function Dashboard() {
     }
   };
 
-  const cachedEntries = localStorage.getItem("entries");
-  if (cachedEntries) {
-    setEntries(JSON.parse(cachedEntries));
-  } else {
+
+  useEffect(() => {
+  
+
+  // const cachedEntries = localStorage.getItem("entries");
+  // if (cachedEntries) {
+  //   setEntries(JSON.parse(cachedEntries));
+  // } else {
     getEntries();
-  }
+  // }
   
   positivePrompt();
 }, []);
@@ -113,11 +136,13 @@ export default function Dashboard() {
         {/* Topbar */}
         <header className="bg-white shadow-sm p-4 flex justify-center items-center relative">
           <h1 className="text-6xl font-bold text-indigo-600">Dashboard</h1>
-          <img
-            src="https://via.placeholder.com/40"
-            alt="User Profile"
-            className="w-10 h-10 rounded-full border absolute right-4"
-          />
+          <button
+  onClick={handleLogout}
+  className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+>
+  Log Out
+</button>
+
         </header>
 
         {/* Positive Prompt */}

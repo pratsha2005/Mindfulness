@@ -2,13 +2,15 @@ import {Router} from 'express';
 import {generatePositivePrompt,
     giveActivitySuggesstion,
     emotionTagging,
-    weeklyAnalysis
+    weeklyAnalysis,
+    getAnalysis
 } from '../controllers/ai.controllers.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 
 
 const router = Router()
 
+router.route('/ai-insights').get(verifyJWT, getAnalysis)
 router.route('/positive-prompt').get(generatePositivePrompt)
 router.route('/activity-suggesstion').get(giveActivitySuggesstion)
 router.route('/emotion-tagging').get(emotionTagging)
